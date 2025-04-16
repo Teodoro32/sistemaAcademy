@@ -316,65 +316,222 @@ class Aluno {
   }
 
   toString() {
-    return `${this.nome} - ${this.idade} anos - ${this.curso} - Nota: ${this.notaFinal}`;
+    return `${this.nome} - ${this.idade} anos - ${this.curso} - Nota: ${
+      this.notaFinal
+    } - ${this.isAprovado() ? "Aprovado" : "Reprovado"}`;
   }
 }
-
 let alunos = [];
+let alunoEditando = null;
 
-function cadastrarAluno() {
-  const nome = document.getElementById("nomeAluno").value;
-  const idade = document.getElementById("idadeAluno").value;
-  const curso = document.getElementById("curso").value;
-  const notaFinal = document.getElementById("notaFinal").value;
+// Carrega os eventos quando o DOM estiver pronto
+document.addEventListener("DOMContentLoaded", () => {
+  // Adiciona event listener ao formulário
+  document.getElementById("alunoForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    cadastrarAluno();
+  });
 
-  if (nome && idade && curso && notaFinal) {
-    const aluno = new Aluno(nome, idade, curso, notaFinal);
-    alunos.push(aluno);
-    renderTable();
-    document.getElementById("alunoForm").reset();
-  } else {
-    alert("Preencha todos os campos.");
+  // Adiciona event listener ao botão de cadastro
+  document.querySelector("#alunoForm button").addEventListener("click", () => {
+    cadastrarAluno();
+  });
+
+  // Relatórios
+  document
+    .getElementById("btnAprovados")
+    .addEventListener("click", mostrarAprovados);
+  document
+    .getElementById("btnMediaNotas")
+    .addEventListener("click", mostrarMediaNotas);
+  document
+    .getElementById("btnMediaIdades")
+    .addEventListener("click", mostrarMediaIdades);
+  document
+    .getElementById("btnOrdemAlfabetica")
+    .addEventListener("click", mostrarOrdemAlfabetica);
+  document
+    .getElementById("btnAlunosPorCurso")
+    .addEventListener("click", mostrarAlunosPorCurso);
+});
+
+// Funções dos relatórios
+const mostrarAprovados = () => {
+  if (alunos.length === 0) {
+    alert("Não há alunos cadastrados.");
+    return;
   }
-}
 
-function renderTable() {
+  const aprovados = alunos.filter((aluno) => aluno.isAprovado());
+
+  if (aprovados.length === 0) {
+    alert("Nenhum aluno foi aprovado.");
+    return;
+  }
+
+  const listaAprovados = aprovados.map((aluno) => aluno.toString()).join("\n");
+  alert(`Alunos Aprovados (${aprovados.length}):\n\n${listaAprovados}`);
+  console.log("Alunos aprovados:", aprovados);
+};
+
+const mostrarMediaNotas = () => {
+  if (alunos.length === 0) {
+    alert("Não há alunos cadastrados.");
+    return;
+  }
+
+  const total = alunos.reduce((sum, aluno) => sum + aluno.notaFinal, 0);
+  const media = total / alunos.length;
+
+  alert(`Média das notas: ${media.toFixed(2)}`);
+  console.log("Média das notas:", media);
+};
+
+const mostrarMediaIdades = () => {
+  if (alunos.length === 0) {
+    alert("Não há alunos cadastrados.");
+    return;
+  }
+
+  const total = alunos.reduce((sum, aluno) => sum + aluno.idade, 0);
+  const media = total / alunos.length;
+
+  alert(`Média das idades: ${media.toFixed(1)} anos`);
+  console.log("Média das idades:", media);
+};
+
+const mostrarOrdemAlfabetica = () => {
+  if (alunos.length === 0) {
+    alert("Não há alunos cadastrados.");
+    return;
+  }
+
+  const ordenados = [...alunos].sort((a, b) =>
+    a.nome.localeCompare(b.nome, "pt-BR", { sensitivity: "base" })
+  );
+
+  const listaOrdenada = ordenados.map((aluno) => aluno.nome).join("\n");
+  alert(`Alunos em ordem alfabética:\n\n${listaOrdenada}`);
+  console.log("Alunos ordenados:", ordenados);
+};
+
+const mostrarAlunosPorCurso = () => {
+  if (alunos.length === 0) {
+    alert("Não há alunos cadastrados.");
+    return;
+  }
+
+  const cursos = {};
+
+  alunos.forEach((aluno) => {
+    cursos[aluno.curso] = (cursos[aluno.curso] || 0) + 1;
+  });
+
+  const relatorio = Object.entries(cursos)
+    .map(([curso, quantidade]) => `${curso}: ${quantidade} aluno(s)`)
+    .join("\n");
+
+  alert(`Quantidade de alunos por curso:\n\n${relatorio}`);
+  console.log("Alunos por curso:", cursos);
+};
+
+const cadastrarAluno = () => {
+  const nome = document.getElementById("nomeAluno").value;
+  const idade = parseInt(document.getElementById("idadeAluno").value);
+  const curso = document.getElementById("curso").value;
+  const notaFinal = parseFloat(document.getElementById("notaFinal").value);
+
+  // Validação dos dados
+  if (!nome || !idade || !curso || isNaN(notaFinal)) {
+    alert("Preencha todos os campos corretamente.");
+    return;
+  }
+
+  if (notaFinal < 0 || notaFinal > 10) {
+    alert("A nota deve estar entre 0 e 10.");
+    return;
+  }
+
+  const aluno = new Aluno(nome, idade, curso, notaFinal);
+
+  if (alunoEditando === null) {
+    alunos.push(aluno);
+    console.log("Aluno cadastrado:", aluno.toString());
+    alert("Aluno cadastrado com sucesso!");
+  } else {
+    alunos[alunoEditando] = aluno;
+    console.log("Aluno editado:", aluno.toString());
+    alert("Aluno editado com sucesso!");
+    alunoEditando = null;
+    document.querySelector("#alunoForm button").textContent = "Cadastrar";
+  }
+
+  renderTable();
+  document.getElementById("alunoForm").reset();
+};
+
+const renderTable = () => {
   const tbody = document.getElementById("tabelaAlunos");
   tbody.innerHTML = "";
 
   alunos.forEach((aluno, index) => {
     const row = tbody.insertRow();
+    row.className = aluno.isAprovado() ? "aprovado" : "reprovado";
 
+    // Célula de ações
     const cellAcoes = row.insertCell();
+
+    // Botão Editar
     const btnEditar = document.createElement("button");
     btnEditar.textContent = "Editar";
-    btnEditar.onclick = () => editarAluno(index);
+    btnEditar.addEventListener("click", () => {
+      editarAluno(index);
+    });
 
+    // Botão Excluir
     const btnExcluir = document.createElement("button");
     btnExcluir.textContent = "Excluir";
-    btnExcluir.onclick = () => excluirAluno(index);
+    btnExcluir.addEventListener("click", () => {
+      excluirAluno(index);
+    });
 
-    // Adiciona os botões na célula
     cellAcoes.appendChild(btnEditar);
     cellAcoes.appendChild(btnExcluir);
 
-    // Células para os dados do aluno
+    // Demais células
     row.insertCell().textContent = aluno.nome;
     row.insertCell().textContent = aluno.idade;
     row.insertCell().textContent = aluno.curso;
     row.insertCell().textContent = aluno.notaFinal;
+    row.insertCell().textContent = aluno.isAprovado()
+      ? "Aprovado"
+      : "Reprovado";
   });
-}
+};
 
-function excluirAluno(index) {
-  alunos.splice(index, 1);
-  renderTable();
-}
-
-function editarAluno(index) {
+const editarAluno = (index) => {
   const aluno = alunos[index];
   document.getElementById("nomeAluno").value = aluno.nome;
   document.getElementById("idadeAluno").value = aluno.idade;
   document.getElementById("curso").value = aluno.curso;
   document.getElementById("notaFinal").value = aluno.notaFinal;
-}
+
+  alunoEditando = index;
+  document.querySelector("#alunoForm button").textContent = "Salvar Edição";
+  console.log("Editando aluno:", aluno.toString());
+};
+
+const excluirAluno = (index) => {
+  const alunoExcluido = alunos[index];
+  alunos.splice(index, 1);
+
+  if (alunoEditando === index) {
+    alunoEditando = null;
+    document.getElementById("alunoForm").reset();
+    document.querySelector("#alunoForm button").textContent = "Cadastrar";
+  }
+
+  renderTable();
+  console.log("Aluno excluído:", alunoExcluido.toString());
+  alert("Aluno excluído com sucesso!");
+};
