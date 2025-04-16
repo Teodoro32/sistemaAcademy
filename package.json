@@ -1,7 +1,7 @@
 {
-  "name": "lab02---funcionario",
+  "name": "lab02---funcionario---lab01---alunos",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,8 +10,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "express": "^4.21.2"
+    "http": "0.0.1",
+    "fs": "0.0.1",
+    "path": "0.0.1"
   }
-
-
 }

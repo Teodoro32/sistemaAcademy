@@ -1,0 +1,65 @@
+Sistema de Gestão de Funcionários e Alunos
+Este projeto é um sistema de gestão que permite cadastrar, editar e excluir funcionários e alunos, além de gerar relatórios diversos.
+
+Funcionalidades
+Para Funcionários
+Cadastro de funcionários (nome, idade, cargo, salário)
+
+Edição e exclusão de registros
+
+Relatórios:
+
+Funcionários com salário maior que R$ 5000
+
+Média salarial da empresa
+
+Lista de cargos únicos
+
+Nomes em maiúsculo
+
+Para Alunos
+Cadastro de alunos (nome, idade, curso, nota final)
+
+Visualização de lista de alunos
+
+Edição e exclusão de registros
+
+Tecnologias Utilizadas
+Frontend:
+
+HTML5
+
+CSS3
+
+JavaScript (Vanilla)
+
+Backend:
+
+Node.js
+
+HTTP module (servidor web)
+
+Como Executar o Projeto
+Pré-requisitos
+Node.js instalado (versão 18 ou superior)
+
+Navegador web moderno
+
+Instalação
+Clone o repositório:
+git clone https://github.com/Teodoro32/sistemaAcademy
+
+Inicie o servidor:
+node server.js
+
+Acesse no navegador:
+http://localhost:3000
+
+Docker (Opcional)
+O projeto inclui um Dockerfile para execução em container:
+
+Construa a imagem:
+docker build -t gestao-academy .
+
+Execute o container:
+docker run -p 3000:3000 gestao-academy
